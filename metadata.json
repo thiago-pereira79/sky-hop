@@ -1,0 +1,6 @@
+{
+  "name": "Sky Hop",
+  "description": "Um jogo rítmico de habilidade e reflexo inspirado na mecânica clássica de Flappy Bird.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
