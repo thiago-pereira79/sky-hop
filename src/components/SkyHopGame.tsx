@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Play, Pause, RotateCcw, Trophy, Sparkles, Gamepad2, Award, Zap, Coins, Smartphone, Lock, Star, ArrowLeft, Volume2, VolumeX, HelpCircle } from 'lucide-react';
 import { GameState, Bird, Obstacle, Cloud, Particle, Level } from '../types';
 import { 
@@ -40,14 +40,14 @@ interface RankInfo {
 // Custom rank calculation according to prompt requirements
 // 0 to 5 points: Iniciante
 // 6 to 15 points: Treinando
-// 16 to 30 points: Ãgil
+// 16 to 30 points: Ágil
 // 31 to 50 points: Mestre do Voo
-// 51+ points: Lenda dos CÃ©us
+// 51+ points: Lenda dos Céus
 export function getRank(score: number): RankInfo {
   if (score >= 51) {
     return {
-      name: 'Lenda dos CÃ©us',
-      badge: 'ðŸ‘‘ Lenda dos CÃ©us',
+      name: 'Lenda dos Céus',
+      badge: '👑 Lenda dos Céus',
       colorClass: 'text-indigo-400 bg-indigo-950/80 border-indigo-500/30',
       nextThreshold: null,
       prevThreshold: 51,
@@ -55,15 +55,15 @@ export function getRank(score: number): RankInfo {
   } else if (score >= 31) {
     return {
       name: 'Mestre do Voo',
-      badge: 'âš¡ Mestre do Voo',
+      badge: '⚡ Mestre do Voo',
       colorClass: 'text-amber-400 bg-amber-950/80 border-amber-500/30',
       nextThreshold: 51,
       prevThreshold: 31,
     };
   } else if (score >= 16) {
     return {
-      name: 'Ãgil',
-      badge: 'âœ¨ Ãgil',
+      name: 'Ágil',
+      badge: '✨ Ágil',
       colorClass: 'text-cyan-400 bg-cyan-950/80 border-cyan-500/30',
       nextThreshold: 31,
       prevThreshold: 16,
@@ -71,7 +71,7 @@ export function getRank(score: number): RankInfo {
   } else if (score >= 6) {
     return {
       name: 'Treinando',
-      badge: 'ðŸŽ¯ Treinando',
+      badge: '🎯 Treinando',
       colorClass: 'text-yellow-400 bg-yellow-950/80 border-yellow-500/30',
       nextThreshold: 16,
       prevThreshold: 6,
@@ -79,7 +79,7 @@ export function getRank(score: number): RankInfo {
   } else {
     return {
       name: 'Iniciante',
-      badge: 'ðŸŒ± Iniciante',
+      badge: '🌱 Iniciante',
       colorClass: 'text-emerald-400 bg-emerald-950/80 border-emerald-500/30',
       nextThreshold: 6,
       prevThreshold: 0,
@@ -92,7 +92,7 @@ export const LEVELS: Level[] = [
     id: 1,
     name: "Primeiro Voo",
     world: 1,
-    worldName: "CÃ©u Claro",
+    worldName: "Céu Claro",
     theme: "day",
     targetScore: 8,
     speed: 2.3,
@@ -107,7 +107,7 @@ export const LEVELS: Level[] = [
     id: 2,
     name: "Nuvens Calmas",
     world: 1,
-    worldName: "CÃ©u Claro",
+    worldName: "Céu Claro",
     theme: "day",
     targetScore: 10,
     speed: 2.5,
@@ -120,9 +120,9 @@ export const LEVELS: Level[] = [
   },
   {
     id: 3,
-    name: "ZÃªnite Azul",
+    name: "Zênite Azul",
     world: 1,
-    worldName: "CÃ©u Claro",
+    worldName: "Céu Claro",
     theme: "day",
     targetScore: 10,
     speed: 2.7,
@@ -137,7 +137,7 @@ export const LEVELS: Level[] = [
     id: 4,
     name: "Brisa de Outono",
     world: 2,
-    worldName: "PÃ´r do Sol",
+    worldName: "Pôr do Sol",
     theme: "sunset",
     targetScore: 12,
     speed: 3.0,
@@ -152,7 +152,7 @@ export const LEVELS: Level[] = [
     id: 5,
     name: "Horizonte Quente",
     world: 2,
-    worldName: "PÃ´r do Sol",
+    worldName: "Pôr do Sol",
     theme: "sunset",
     targetScore: 12,
     speed: 3.2,
@@ -165,9 +165,9 @@ export const LEVELS: Level[] = [
   },
   {
     id: 6,
-    name: "Ãšltimo Suspiro",
+    name: "Último Suspiro",
     world: 2,
-    worldName: "PÃ´r do Sol",
+    worldName: "Pôr do Sol",
     theme: "sunset",
     targetScore: 13,
     speed: 3.4,
@@ -180,7 +180,7 @@ export const LEVELS: Level[] = [
   },
   {
     id: 7,
-    name: "SilÃªncio Astral",
+    name: "Silêncio Astral",
     world: 3,
     worldName: "Noite Estrelada",
     theme: "night",
@@ -195,7 +195,7 @@ export const LEVELS: Level[] = [
   },
   {
     id: 8,
-    name: "ConstelaÃ§Ãµes",
+    name: "Constelações",
     world: 3,
     worldName: "Noite Estrelada",
     theme: "night",
@@ -225,7 +225,7 @@ export const LEVELS: Level[] = [
   },
   {
     id: 10,
-    name: "Brisa ElÃ©trica",
+    name: "Brisa Elétrica",
     world: 4,
     worldName: "Tempestade",
     theme: "storm",
@@ -240,7 +240,7 @@ export const LEVELS: Level[] = [
   },
   {
     id: 11,
-    name: "TrovÃ£o de Neon",
+    name: "Trovão de Neon",
     world: 4,
     worldName: "Tempestade",
     theme: "storm",
@@ -255,7 +255,7 @@ export const LEVELS: Level[] = [
   },
   {
     id: 12,
-    name: "Centro do FuracÃ£o",
+    name: "Centro do Furacão",
     world: 4,
     worldName: "Tempestade",
     theme: "storm",
@@ -285,21 +285,21 @@ const THEME_GRADIENTS: Record<Level['theme'], SkyGradientInfo> = {
     bottom: '#feb47b',
     clouds: '#fef3c7',
     accent: '#fde047',
-    label: 'CrepÃºsculo Dourado'
+    label: 'Crepúsculo Dourado'
   },
   night: {
     top: '#1e1b4b',
     bottom: '#2e1065',
     clouds: '#cbd5e1',
     accent: '#818cf8',
-    label: 'Noite CÃ³smica'
+    label: 'Noite Cósmica'
   },
   storm: {
     top: '#0f172a',
     bottom: '#311042',
     clouds: '#94a3b8',
     accent: '#c084fc',
-    label: 'Tempestade ElÃ©trica'
+    label: 'Tempestade Elétrica'
   }
 };
 
@@ -308,7 +308,7 @@ const ENDLESS_AGILE_GRADIENT: SkyGradientInfo = {
   bottom: '#2563eb',
   clouds: '#cbd5e1',
   accent: '#e9d5ff',
-  label: 'Noite CÃ³smica'
+  label: 'Noite Cósmica'
 };
 
 const ENDLESS_MASTER_GRADIENT: SkyGradientInfo = {
@@ -324,7 +324,7 @@ const ENDLESS_LEGEND_GRADIENT: SkyGradientInfo = {
   bottom: '#4f46e5',
   clouds: '#94a3b8',
   accent: '#a5b4fc',
-  label: 'Limiar do EspaÃ§o'
+  label: 'Limiar do Espaço'
 };
 
 function getSkyGradients(scoreOrTheme: number | Level['theme']): SkyGradientInfo {
@@ -1005,7 +1005,7 @@ export default function SkyHopGame() {
                   });
                 }
 
-                // Show quick +ðŸ’° coin popup
+                // Show quick +💰 coin popup
                 particlesRef.current.push({
                   x: coinX,
                   y: coinY - 15,
@@ -1017,7 +1017,7 @@ export default function SkyHopGame() {
                   life: 0,
                   maxLife: 28,
                   type: 'score',
-                  text: '+ðŸ’°'
+                  text: '+💰'
                 });
               }
             }
@@ -1408,16 +1408,16 @@ export default function SkyHopGame() {
                 <span>Gire seu dispositivo</span>
               </h2>
               <p className={`text-slate-200 font-semibold max-w-[280px] leading-relaxed mx-auto ${isVeryShortLandscape ? 'text-[11px]' : 'text-xs sm:text-sm'}`}>
-                Este jogo foi pensado para uma experiÃªncia mais fluida no modo vertical.
+                Este jogo foi pensado para uma experiência mais fluida no modo vertical.
               </p>
               <p className={`text-slate-400 font-medium max-w-[260px] leading-relaxed mx-auto ${isVeryShortLandscape ? 'text-[10px]' : 'text-[11px]'}`}>
-                Volte para a posiÃ§Ã£o vertical para continuar jogando.
+                Volte para a posição vertical para continuar jogando.
               </p>
             </div>
 
             {/* Aesthetic layout helper lines */}
             <div className={`w-full bg-slate-950/60 rounded-xl border border-white/5 text-teal-400 font-bold uppercase tracking-wider ${isVeryShortLandscape ? 'p-2 text-[9px]' : 'p-3.5 text-[10px]'}`}>
-              ðŸ“± Otimizado para telas verticais
+              📱 Otimizado para telas verticais
             </div>
           </div>
         </div>
@@ -1434,7 +1434,7 @@ export default function SkyHopGame() {
             </span>
           </h1>
           <p className="text-slate-650 text-sm font-semibold leading-relaxed mt-3 max-w-[290px]">
-             Voe alto pelos cÃ©us, desvie dos obstÃ¡culos e domine o ritmo do voo.
+             Voe alto pelos céus, desvie dos obstáculos e domine o ritmo do voo.
           </p>
         </div>
 
@@ -1442,20 +1442,20 @@ export default function SkyHopGame() {
         <div className="w-full bg-white/90 backdrop-blur-md border border-slate-200 p-5 rounded-2xl shadow-md flex flex-col gap-3">
           <h3 className="text-xs font-black text-blue-600 uppercase tracking-widest flex items-center gap-1.5 border-b border-slate-100 pb-2">
             <Gamepad2 size={14} className="text-blue-500 animate-pulse" />
-            <span>Como Jogar</span>
+            <span>Como jogar</span>
           </h3>
           <ul className="space-y-2.5 text-slate-600 text-xs font-medium font-sans">
             <li className="flex items-start gap-1.5 leading-snug">
-              <span className="text-blue-500 font-bold mt-0.5">â€¢</span>
-              <span>Pressione <strong className="text-slate-800 bg-slate-100 px-1.5 py-0.5 rounded font-mono text-[10px] border border-slate-200">EspaÃ§o</strong> ou clique para subir.</span>
+              <span className="text-blue-500 font-bold mt-0.5">•</span>
+              <span>Pressione <strong className="text-slate-800 bg-slate-100 px-1.5 py-0.5 rounded font-mono text-[10px] border border-slate-200">Espaço</strong> ou clique para subir.</span>
             </li>
             <li className="flex items-start gap-1.5 leading-snug">
-              <span className="text-blue-500 font-bold mt-0.5">â€¢</span>
+              <span className="text-blue-500 font-bold mt-0.5">•</span>
               <span>Pressione <strong className="text-slate-800 bg-slate-100 px-1.5 py-0.5 rounded font-mono text-[10px] border border-slate-200">P</strong> para pausar o voo.</span>
             </li>
             <li className="flex items-start gap-1.5 leading-snug">
-              <span className="text-blue-500 font-bold mt-0.5">â€¢</span>
-              <span>Desvie dos obstÃ¡culos e tente alcanÃ§ar a melhor pontuaÃ§Ã£o.</span>
+              <span className="text-blue-500 font-bold mt-0.5">•</span>
+              <span>Desvie dos obstáculos e tente alcançar a melhor pontuação.</span>
             </li>
           </ul>
         </div>
@@ -1683,13 +1683,13 @@ export default function SkyHopGame() {
                   </p>
                   {(isMobilePortrait || isTabletPortrait || !isCompact) && (
                     <p className="text-[9px] text-slate-400 font-semibold mt-0.5">
-                      Meta: Sobreviver {activeLevelForUi?.targetScore} vÃ£os
+                      Meta: Sobreviver {activeLevelForUi?.targetScore} vãos
                     </p>
                   )}
                 </div>
               )}
 
-              {/* Compact Como Jogar trigger button for portable screens (mobile/tablet/iPad) */}
+              {/* Compact "Como jogar" trigger button for portable screens (mobile/tablet/iPad) */}
               <div className="w-full flex justify-center py-0.5 lg:hidden pointer-events-auto">
                 <button
                   onClick={(e) => {
@@ -1771,7 +1771,7 @@ export default function SkyHopGame() {
                   }`}
                 >
                   <Play size={14} fill="currentColor" />
-                  <span>ComeÃ§ar Voo Infinito</span>
+                  <span>Começar voo infinito</span>
                 </button>
               )}
             </div>
@@ -1790,12 +1790,12 @@ export default function SkyHopGame() {
               </div>
 
               <div className="text-center">
-                <h2 className="text-sm font-black text-teal-400 uppercase tracking-widest">Como Jogar</h2>
+                <h2 className="text-sm font-black text-teal-400 uppercase tracking-widest">Como jogar</h2>
                 <p className="text-slate-200 text-xs font-semibold leading-relaxed mt-2.5 font-sans">
-                  Toque na tela para fazer o personagem voar. Desvie dos obstÃ¡culos, colete moedas e tente concluir cada fase.
+                  Toque na tela para fazer o personagem voar. Desvie dos obstáculos, colete moedas e tente concluir cada fase.
                 </p>
                 <div className="text-slate-400 text-[10px] font-medium leading-relaxed mt-2 border-t border-white/5 pt-2 font-sans">
-                  No computador, use <span className="text-white font-mono bg-slate-800 px-1 py-0.5 rounded">EspaÃ§o</span> ou clique para voar. Pressione <span className="text-white font-mono bg-slate-800 px-1 py-0.5 rounded">P</span> para pausar.
+                  No computador, use <span className="text-white font-mono bg-slate-800 px-1 py-0.5 rounded">Espaço</span> ou clique para voar. Pressione <span className="text-white font-mono bg-slate-800 px-1 py-0.5 rounded">P</span> para pausar.
                 </div>
               </div>
 
@@ -1832,13 +1832,13 @@ export default function SkyHopGame() {
               )}
 
               <div>
-                <h2 className={`${isCompact ? 'text-lg' : 'text-xl'} font-black text-rose-500 uppercase tracking-wide leading-none`}>Fim de Jogo</h2>
-                {!isCompact && <p className="text-slate-400 text-xs font-semibold mt-1">Ã“timo percurso sob os cÃ©us!</p>}
+                <h2 className={`${isCompact ? 'text-lg' : 'text-xl'} font-black text-rose-500 uppercase tracking-wide leading-none`}>Fim de jogo</h2>
+                {!isCompact && <p className="text-slate-400 text-xs font-semibold mt-1">Ótimo percurso sob os céus!</p>}
               </div>
 
               {/* Patient Patent block */}
               <div className={`w-full rounded-xl border border-slate-700 bg-slate-950/80 flex flex-col items-center justify-center ${isCompact ? 'px-2 py-1.5' : 'px-3 py-1.5 sm:py-2.5'}`}>
-                <span className="text-[9px] font-bold uppercase text-slate-400 tracking-wider">Patente Conquistada</span>
+                <span className="text-[9px] font-bold uppercase text-slate-400 tracking-wider">Patente conquistada</span>
                 <span className={`${isCompact ? 'text-xs' : 'text-sm'} font-black text-yellow-400 tracking-wide mt-1 animate-pulse`}>
                   {currentRankInfo.badge}
                 </span>
@@ -1862,7 +1862,7 @@ export default function SkyHopGame() {
               {/* Collectible Info */}
               <div className={`w-full bg-yellow-950/30 border border-yellow-500/10 rounded-lg flex items-center justify-center gap-1.5 text-amber-300 font-mono font-bold ${isCompact ? 'py-0.5 text-[9.5px]' : 'py-1 text-[11px]'}`}>
                 <Coins size={isCompact ? 10 : 12} />
-                <span>Moedas Coletadas: {coinsCount}</span>
+                <span>Moedas coletadas: {coinsCount}</span>
               </div>
 
               {/* Interactive restart indicators */}
@@ -1878,7 +1878,7 @@ export default function SkyHopGame() {
                   }`}
                 >
                   <RotateCcw size={14} strokeWidth={3} />
-                  <span>Jogar Novamente</span>
+                  <span>Jogar novamente</span>
                 </button>
 
                 <button
@@ -1892,12 +1892,12 @@ export default function SkyHopGame() {
                   }`}
                 >
                   <ArrowLeft size={12} />
-                  <span>Voltar ao Menu</span>
+                  <span>Voltar ao menu</span>
                 </button>
                 
                 {!isCompact && (
                   <p className="text-[9px] sm:text-[10px] font-semibold text-slate-400">
-                    Ou pressione o <strong className="text-slate-300 font-mono">ENTER / ESPAÃ‡O</strong> no teclado.
+                    Ou pressione o <strong className="text-slate-300 font-mono">ENTER / ESPAÇO</strong> no teclado.
                   </p>
                 )}
               </div>
@@ -1922,7 +1922,7 @@ export default function SkyHopGame() {
               </div>
 
               <div>
-                <h2 className="text-xl font-black text-white">Voo Pausado</h2>
+                <h2 className="text-xl font-black text-white">Voo pausado</h2>
                 <p className="text-slate-400 text-xs mt-1">Continue quando estiver pronto.</p>
               </div>
 
@@ -1939,7 +1939,7 @@ export default function SkyHopGame() {
                   }`}
                 >
                   <Play size={14} fill="currentColor" />
-                  <span>Retomar Voo</span>
+                  <span>Retomar voo</span>
                 </button>
 
                 <button
@@ -1953,7 +1953,7 @@ export default function SkyHopGame() {
                   }`}
                 >
                   <RotateCcw size={14} />
-                  <span>Reiniciar do Zero</span>
+                  <span>Reiniciar do zero</span>
                 </button>
               </div>
             </div>
@@ -1978,14 +1978,14 @@ export default function SkyHopGame() {
                 <ArrowLeft size={13} />
                 <span>Voltar</span>
               </button>
-              <h2 className="text-sm font-black text-white font-sans uppercase tracking-wider text-right">Selecionar Voo</h2>
+              <h2 className="text-sm font-black text-white font-sans uppercase tracking-wider text-right">Selecionar voo</h2>
             </div>
 
             {/* Scrolling levels container */}
             <div className="w-full space-y-5 pb-6">
               {[1, 2, 3, 4].map((worldNum) => {
-                const worldName = worldNum === 1 ? 'Mundo 1: CÃ©u Claro' :
-                                  worldNum === 2 ? 'Mundo 2: PÃ´r do Sol' :
+                const worldName = worldNum === 1 ? 'Mundo 1: Céu Claro' :
+                                  worldNum === 2 ? 'Mundo 2: Pôr do Sol' :
                                   worldNum === 3 ? 'Mundo 3: Noite Estrelada' :
                                   'Mundo 4: Tempestade';
                 const worldBg = worldNum === 1 ? 'text-sky-300 bg-sky-950/35 border-sky-500/20' :
@@ -2032,7 +2032,7 @@ export default function SkyHopGame() {
                             </div>
 
                             <span className="text-[8px] font-black tracking-wider text-teal-400 uppercase">
-                              {lvl.targetScore} vÃ£os
+                              {lvl.targetScore} vãos
                             </span>
                           </button>
                         );
@@ -2058,7 +2058,7 @@ export default function SkyHopGame() {
                 }}
                 className="px-2 py-1 bg-rose-950/40 text-rose-400 hover:bg-rose-900/50 border border-rose-500/10 rounded transition cursor-pointer"
               >
-                Apagar Progresso
+                Apagar progresso
               </button>
               <span>Selecione para voar!</span>
             </div>
@@ -2086,13 +2086,13 @@ export default function SkyHopGame() {
               )}
 
               <div>
-                <h2 className={`${isCompact ? 'text-lg' : 'text-xl'} font-black text-emerald-400 uppercase tracking-wide leading-none`}>Fase ConcluÃ­da!</h2>
-                {!isCompact && <p className="text-slate-400 text-xs font-semibold mt-1">CÃ©u cruzado com maestria!</p>}
+                <h2 className={`${isCompact ? 'text-lg' : 'text-xl'} font-black text-emerald-400 uppercase tracking-wide leading-none`}>Fase concluída!</h2>
+                {!isCompact && <p className="text-slate-400 text-xs font-semibold mt-1">Céu cruzado com maestria!</p>}
               </div>
 
               {/* Display level details */}
               <div className={`w-full rounded-xl border border-slate-700 bg-slate-950/80 text-center ${isCompact ? 'p-1.5' : 'p-2 sm:p-3'}`}>
-                <span className="text-[9px] font-bold uppercase text-slate-400 tracking-wider">VocÃª venceu a</span>
+                <span className="text-[9px] font-bold uppercase text-slate-400 tracking-wider">Você venceu a</span>
                 <p className={`${isCompact ? 'text-xs' : 'text-md'} font-black text-white leading-tight`}>Fase {currentLevelId}: {activeLevelForUi?.name}</p>
                 {!isCompact && <span className="text-[10px] font-bold text-slate-500">Mundo: {activeLevelForUi?.worldName}</span>}
               </div>
@@ -2126,7 +2126,7 @@ export default function SkyHopGame() {
               {/* Coins gathered during the run */}
               <div className={`w-full bg-yellow-950/30 border border-yellow-500/10 rounded-lg flex items-center justify-center gap-1.5 text-amber-300 font-mono font-bold ${isCompact ? 'py-0.5 text-[9.5px]' : 'py-1 text-xs'}`}>
                 <Coins size={isCompact ? 10 : 12} />
-                <span>Moedas Coletadas: {levelCoinsCollected} / {activeLevelForUi?.star3Coins}</span>
+                <span>Moedas coletadas: {levelCoinsCollected} / {activeLevelForUi?.star3Coins}</span>
               </div>
 
               {/* Action buttons */}
@@ -2143,13 +2143,13 @@ export default function SkyHopGame() {
                       isCompact ? 'py-2 text-xs' : 'py-3 px-5 text-sm'
                     }`}
                   >
-                    <span>PrÃ³xima Fase ({currentLevelId + 1})</span>
+                    <span>Próxima fase ({currentLevelId + 1})</span>
                     <Play size={13} fill="currentColor" />
                   </button>
                 ) : (
                   <div className="w-full p-2 bg-yellow-950/20 text-yellow-500 border border-yellow-500/20 rounded-xl text-[10px] font-black uppercase tracking-wider flex items-center justify-center gap-1">
                     <Trophy size={11} className="text-yellow-400 animate-pulse" />
-                    <span>Todas as fases concluÃ­das!</span>
+                    <span>Todas as fases concluídas!</span>
                   </div>
                 )}
 
@@ -2162,7 +2162,7 @@ export default function SkyHopGame() {
                     isCompact ? 'py-1.5 text-[10.5px]' : 'py-2 text-xs'
                   }`}
                 >
-                  <span>Mudar de Fase</span>
+                  <span>Mudar de fase</span>
                 </button>
                 
                 <button
@@ -2174,7 +2174,7 @@ export default function SkyHopGame() {
                     isCompact ? 'py-0.5' : 'py-1.5'
                   }`}
                 >
-                  Voltar ao Menu
+                  Voltar ao menu
                 </button>
               </div>
             </div>
