@@ -1,5 +1,6 @@
 export enum GameState {
   START = 'START',
+  READY = 'READY',
   PLAYING = 'PLAYING',
   PAUSED = 'PAUSED',
   GAMEOVER = 'GAMEOVER',
@@ -21,6 +22,8 @@ export interface Level {
   star2Coins: number;
   star3Coins: number;
   mechanic?: 'normal' | 'fast' | 'moving' | 'wind';
+  waveSpeed?: number;
+  waveAmplitude?: number;
 }
 
 export interface Bird {

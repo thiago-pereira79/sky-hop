@@ -20,10 +20,10 @@ const WING_OFFSETS_Y = [3, 0, -3, 0];
 const PIPE_HIGHLIGHT = '#34d399';
 const PIPE_COLOR = '#10b981';
 const PIPE_SHADE = '#047857';
-const MOVING_OBSTACLE_WAVE_SPEED = 0.03;
-const WIND_OBSTACLE_WAVE_SPEED = 0.045;
-const MOVING_OBSTACLE_AMPLITUDE = 30;
-const WIND_OBSTACLE_AMPLITUDE = 45;
+const MOVING_OBSTACLE_WAVE_SPEED = 0.02;
+const WIND_OBSTACLE_WAVE_SPEED = 0.03;
+const MOVING_OBSTACLE_AMPLITUDE = 18;
+const WIND_OBSTACLE_AMPLITUDE = 28;
 
 interface SkyGradientInfo {
   top: string;
@@ -98,13 +98,13 @@ export const LEVELS: Level[] = [
     world: 1,
     worldName: "Céu Claro",
     theme: "day",
-    targetScore: 8,
-    speed: 2.3,
-    centerGap: 160,
-    spawnDistance: 235,
-    star1Coins: 2,
-    star2Coins: 4,
-    star3Coins: 6,
+    targetScore: 6,
+    speed: 1.9,
+    centerGap: 185,
+    spawnDistance: 300,
+    star1Coins: 1,
+    star2Coins: 2,
+    star3Coins: 3,
     mechanic: 'normal'
   },
   {
@@ -113,13 +113,13 @@ export const LEVELS: Level[] = [
     world: 1,
     worldName: "Céu Claro",
     theme: "day",
-    targetScore: 10,
-    speed: 2.5,
-    centerGap: 155,
-    spawnDistance: 225,
-    star1Coins: 3,
-    star2Coins: 5,
-    star3Coins: 7,
+    targetScore: 7,
+    speed: 2.05,
+    centerGap: 178,
+    spawnDistance: 285,
+    star1Coins: 2,
+    star2Coins: 3,
+    star3Coins: 5,
     mechanic: 'normal'
   },
   {
@@ -128,13 +128,13 @@ export const LEVELS: Level[] = [
     world: 1,
     worldName: "Céu Claro",
     theme: "day",
-    targetScore: 10,
-    speed: 2.7,
-    centerGap: 150,
-    spawnDistance: 220,
-    star1Coins: 3,
-    star2Coins: 5,
-    star3Coins: 7,
+    targetScore: 8,
+    speed: 2.2,
+    centerGap: 170,
+    spawnDistance: 270,
+    star1Coins: 2,
+    star2Coins: 4,
+    star3Coins: 6,
     mechanic: 'normal'
   },
   {
@@ -143,13 +143,13 @@ export const LEVELS: Level[] = [
     world: 2,
     worldName: "Pôr do Sol",
     theme: "sunset",
-    targetScore: 12,
-    speed: 3.0,
-    centerGap: 142,
-    spawnDistance: 215,
-    star1Coins: 4,
-    star2Coins: 6,
-    star3Coins: 8,
+    targetScore: 10,
+    speed: 2.45,
+    centerGap: 162,
+    spawnDistance: 255,
+    star1Coins: 3,
+    star2Coins: 5,
+    star3Coins: 7,
     mechanic: 'normal'
   },
   {
@@ -158,13 +158,13 @@ export const LEVELS: Level[] = [
     world: 2,
     worldName: "Pôr do Sol",
     theme: "sunset",
-    targetScore: 12,
-    speed: 3.2,
-    centerGap: 138,
-    spawnDistance: 210,
-    star1Coins: 4,
-    star2Coins: 6,
-    star3Coins: 8,
+    targetScore: 10,
+    speed: 2.65,
+    centerGap: 156,
+    spawnDistance: 245,
+    star1Coins: 3,
+    star2Coins: 5,
+    star3Coins: 7,
     mechanic: 'normal'
   },
   {
@@ -173,13 +173,13 @@ export const LEVELS: Level[] = [
     world: 2,
     worldName: "Pôr do Sol",
     theme: "sunset",
-    targetScore: 13,
-    speed: 3.4,
-    centerGap: 134,
-    spawnDistance: 200,
+    targetScore: 11,
+    speed: 2.85,
+    centerGap: 150,
+    spawnDistance: 235,
     star1Coins: 4,
-    star2Coins: 7,
-    star3Coins: 9,
+    star2Coins: 6,
+    star3Coins: 8,
     mechanic: 'normal'
   },
   {
@@ -188,14 +188,16 @@ export const LEVELS: Level[] = [
     world: 3,
     worldName: "Noite Estrelada",
     theme: "night",
-    targetScore: 14,
-    speed: 3.6,
-    centerGap: 130,
-    spawnDistance: 195,
+    targetScore: 11,
+    speed: 3.05,
+    centerGap: 148,
+    spawnDistance: 230,
     star1Coins: 5,
-    star2Coins: 8,
-    star3Coins: 10,
-    mechanic: 'moving'
+    star2Coins: 7,
+    star3Coins: 9,
+    mechanic: 'moving',
+    waveSpeed: 0.018,
+    waveAmplitude: 16
   },
   {
     id: 8,
@@ -203,14 +205,16 @@ export const LEVELS: Level[] = [
     world: 3,
     worldName: "Noite Estrelada",
     theme: "night",
-    targetScore: 14,
-    speed: 3.8,
-    centerGap: 126,
-    spawnDistance: 190,
+    targetScore: 12,
+    speed: 3.2,
+    centerGap: 144,
+    spawnDistance: 220,
     star1Coins: 5,
-    star2Coins: 8,
-    star3Coins: 10,
-    mechanic: 'moving'
+    star2Coins: 7,
+    star3Coins: 9,
+    mechanic: 'moving',
+    waveSpeed: 0.021,
+    waveAmplitude: 20
   },
   {
     id: 9,
@@ -218,14 +222,16 @@ export const LEVELS: Level[] = [
     world: 3,
     worldName: "Noite Estrelada",
     theme: "night",
-    targetScore: 15,
-    speed: 4.0,
-    centerGap: 122,
-    spawnDistance: 185,
+    targetScore: 13,
+    speed: 3.35,
+    centerGap: 140,
+    spawnDistance: 215,
     star1Coins: 5,
-    star2Coins: 9,
-    star3Coins: 11,
-    mechanic: 'moving'
+    star2Coins: 8,
+    star3Coins: 10,
+    mechanic: 'moving',
+    waveSpeed: 0.024,
+    waveAmplitude: 24
   },
   {
     id: 10,
@@ -233,14 +239,16 @@ export const LEVELS: Level[] = [
     world: 4,
     worldName: "Tempestade",
     theme: "storm",
-    targetScore: 15,
-    speed: 4.2,
-    centerGap: 118,
-    spawnDistance: 180,
+    targetScore: 13,
+    speed: 3.55,
+    centerGap: 136,
+    spawnDistance: 205,
     star1Coins: 6,
-    star2Coins: 10,
-    star3Coins: 12,
-    mechanic: 'wind'
+    star2Coins: 9,
+    star3Coins: 11,
+    mechanic: 'wind',
+    waveSpeed: 0.028,
+    waveAmplitude: 26
   },
   {
     id: 11,
@@ -248,14 +256,16 @@ export const LEVELS: Level[] = [
     world: 4,
     worldName: "Tempestade",
     theme: "storm",
-    targetScore: 16,
-    speed: 4.4,
-    centerGap: 115,
-    spawnDistance: 175,
+    targetScore: 14,
+    speed: 3.75,
+    centerGap: 132,
+    spawnDistance: 195,
     star1Coins: 6,
-    star2Coins: 11,
-    star3Coins: 13,
-    mechanic: 'wind'
+    star2Coins: 10,
+    star3Coins: 12,
+    mechanic: 'wind',
+    waveSpeed: 0.032,
+    waveAmplitude: 30
   },
   {
     id: 12,
@@ -263,14 +273,16 @@ export const LEVELS: Level[] = [
     world: 4,
     worldName: "Tempestade",
     theme: "storm",
-    targetScore: 18,
-    speed: 4.6,
-    centerGap: 110,
-    spawnDistance: 170,
+    targetScore: 15,
+    speed: 3.95,
+    centerGap: 128,
+    spawnDistance: 190,
     star1Coins: 7,
-    star2Coins: 11,
-    star3Coins: 14,
-    mechanic: 'wind'
+    star2Coins: 10,
+    star3Coins: 13,
+    mechanic: 'wind',
+    waveSpeed: 0.036,
+    waveAmplitude: 34
   }
 ];
 
@@ -602,6 +614,16 @@ export default function SkyHopGame() {
     }
   };
 
+  const startFlight = () => {
+    initAudio();
+    gameStateRef.current = GameState.PLAYING;
+    setGameState(GameState.PLAYING);
+    birdRef.current.vy = jumpForce;
+    birdRef.current.targetAngle = -0.4;
+    spawnJumpDust(60 + birdRef.current.radius, birdRef.current.y);
+    playFlapSound();
+  };
+
   // Trigger Bird Jump
   const handleJump = (e?: React.MouseEvent | React.TouchEvent | KeyboardEvent) => {
     if (isOrientationBlocked) return;
@@ -618,11 +640,10 @@ export default function SkyHopGame() {
     }
 
     if (gameStateRef.current === GameState.START) {
-      initAudio();
-      setGameState(GameState.PLAYING);
-      birdRef.current.vy = jumpForce;
-      spawnJumpDust(60 + birdRef.current.radius, birdRef.current.y);
-      playFlapSound();
+      resetGame();
+      startFlight();
+    } else if (gameStateRef.current === GameState.READY) {
+      startFlight();
     } else if (gameStateRef.current === GameState.PLAYING) {
       birdRef.current.vy = jumpForce;
       birdRef.current.targetAngle = -0.4; // Tilt upwards
@@ -688,8 +709,9 @@ export default function SkyHopGame() {
         e.preventDefault();
         if (gameStateRef.current === GameState.GAMEOVER) {
           resetGame();
+        } else if (gameStateRef.current === GameState.READY) {
+          startFlight();
         } else if (gameStateRef.current === GameState.START) {
-          setGameState(GameState.PLAYING);
           resetGame();
         }
       }
@@ -723,10 +745,12 @@ export default function SkyHopGame() {
     obstaclesRef.current = [];
     particlesRef.current = [];
     levelCoinsCollectedRef.current = 0;
+    scoreRef.current = 0;
     setLevelCoinsCollected(0);
     setScore(0);
     setCoinsCount(0);
-    setGameState(GameState.PLAYING);
+    gameStateRef.current = GameState.READY;
+    setGameState(GameState.READY);
   };
 
 
@@ -786,7 +810,7 @@ export default function SkyHopGame() {
           }
         }
 
-        if (state === GameState.START) {
+        if (state === GameState.START || state === GameState.READY) {
           // Idle bobbing bird animation using Sine wave
           birdRef.current.y = V_HEIGHT / 2 + Math.sin(tickerRef.current * 0.08) * 15;
           birdRef.current.currentAngle = Math.sin(tickerRef.current * 0.05) * 0.15;
@@ -898,7 +922,7 @@ export default function SkyHopGame() {
             const topHeight = Math.floor(Math.random() * (maxHeight - minHeight)) + minHeight;
             const bottomHeight = V_HEIGHT - currentGap - topHeight - 35; // ground factor
             const hasVerticalMotion = gameModeRef.current === 'campaign' && (activeLevel?.mechanic === 'moving' || activeLevel?.mechanic === 'wind');
-            const waveSpeed = activeLevel?.mechanic === 'wind' ? WIND_OBSTACLE_WAVE_SPEED : MOVING_OBSTACLE_WAVE_SPEED;
+            const waveSpeed = activeLevel?.waveSpeed ?? (activeLevel?.mechanic === 'wind' ? WIND_OBSTACLE_WAVE_SPEED : MOVING_OBSTACLE_WAVE_SPEED);
 
             // 70% probability of a coin spawning perfectly inside the gap of the obstacles
             const hasCoin = Math.random() < 0.70;
@@ -934,8 +958,8 @@ export default function SkyHopGame() {
               }
 
               const origHeight = obs.originalTopHeight;
-              const speedMultiplier = activeLevel.mechanic === 'wind' ? WIND_OBSTACLE_WAVE_SPEED : MOVING_OBSTACLE_WAVE_SPEED;
-              const amplitude = activeLevel.mechanic === 'wind' ? WIND_OBSTACLE_AMPLITUDE : MOVING_OBSTACLE_AMPLITUDE;
+              const speedMultiplier = activeLevel.waveSpeed ?? (activeLevel.mechanic === 'wind' ? WIND_OBSTACLE_WAVE_SPEED : MOVING_OBSTACLE_WAVE_SPEED);
+              const amplitude = activeLevel.waveAmplitude ?? (activeLevel.mechanic === 'wind' ? WIND_OBSTACLE_AMPLITUDE : MOVING_OBSTACLE_AMPLITUDE);
 
               if (obs.wavePhase === undefined) {
                 const currentOffset = Math.max(-amplitude, Math.min(amplitude, obs.topHeight - origHeight));
@@ -1615,6 +1639,24 @@ export default function SkyHopGame() {
           </div>
         )}
 
+        {!isOrientationBlocked && gameState === GameState.READY && (
+          <div className="absolute inset-0 z-20 flex items-center justify-center px-4 text-center pointer-events-none">
+            <div className={`rounded-2xl border border-white/10 bg-slate-950/60 backdrop-blur-sm shadow-2xl ${
+              isCompact ? 'px-4 py-3' : 'px-5 py-4'
+            }`}>
+              <div className="flex items-center justify-center gap-2 text-sm font-black uppercase tracking-wide text-white">
+                <Play size={16} fill="currentColor" className="text-emerald-300" />
+                <span>{isDesktop ? 'Pressione para começar' : 'Toque para voar'}</span>
+              </div>
+              {!isCompact && (
+                <p className="mt-1.5 text-[11px] font-semibold text-slate-300">
+                  O primeiro comando já impulsiona o voo.
+                </p>
+              )}
+            </div>
+          </div>
+        )}
+
         {/* 1. START GAME MENU OVERLAY */}
         {!isOrientationBlocked && gameState === GameState.START && (
           <div 
@@ -1762,7 +1804,6 @@ export default function SkyHopGame() {
                     id="btn-play-level"
                     onClick={(e) => {
                       e.stopPropagation();
-                      setGameState(GameState.PLAYING);
                       resetGame();
                     }}
                     className={`w-full bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-400 hover:to-indigo-500 font-extrabold text-white rounded-xl shadow-lg transform hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-2 ${
@@ -1803,7 +1844,6 @@ export default function SkyHopGame() {
                   id="btn-start-game"
                   onClick={(e) => {
                     e.stopPropagation();
-                    setGameState(GameState.PLAYING);
                     resetGame();
                   }}
                   className={`w-full bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 font-extrabold text-white rounded-xl shadow-lg transform hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-2 pointer-events-auto ${
@@ -2056,8 +2096,8 @@ export default function SkyHopGame() {
                             key={lvl.id}
                             onClick={(e) => {
                               e.stopPropagation();
+                              currentLevelIdRef.current = lvl.id;
                               setCurrentLevelId(lvl.id);
-                              setGameState(GameState.PLAYING);
                               resetGame();
                             }}
                             className="relative aspect-square rounded-xl border border-slate-700 bg-slate-900 hover:bg-slate-850 hover:scale-[1.05] active:scale-95 transition-all select-none flex flex-col items-center justify-between p-2 cursor-pointer shadow-md pointer-events-auto"
@@ -2181,8 +2221,9 @@ export default function SkyHopGame() {
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
-                      setCurrentLevelId(prev => prev + 1);
-                      setGameState(GameState.PLAYING);
+                      const nextLevelId = currentLevelId + 1;
+                      currentLevelIdRef.current = nextLevelId;
+                      setCurrentLevelId(nextLevelId);
                       resetGame();
                     }}
                     className={`w-full bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 font-extrabold text-white rounded-xl shadow-lg transition transform hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-1.5 pointer-events-auto cursor-pointer ${
