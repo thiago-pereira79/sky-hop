@@ -47,6 +47,7 @@ export interface Obstacle {
     radius: number;
   };
   originalTopHeight?: number;
+  wavePhase?: number;
 }
 
 export interface Cloud {
@@ -75,4 +76,3 @@ export interface GameStats {
   score: number;
   highScore: number;
 }
-

@@ -20,6 +20,10 @@ const WING_OFFSETS_Y = [3, 0, -3, 0];
 const PIPE_HIGHLIGHT = '#34d399';
 const PIPE_COLOR = '#10b981';
 const PIPE_SHADE = '#047857';
+const MOVING_OBSTACLE_WAVE_SPEED = 0.03;
+const WIND_OBSTACLE_WAVE_SPEED = 0.045;
+const MOVING_OBSTACLE_AMPLITUDE = 30;
+const WIND_OBSTACLE_AMPLITUDE = 45;
 
 interface SkyGradientInfo {
   top: string;
@@ -734,6 +738,23 @@ export default function SkyHopGame() {
     if (!ctx) return;
 
     let lastFrameTime: number | null = null;
+    let cachedSkyKey = '';
+    let cachedSkyGradient: CanvasGradient | null = null;
+    let cachedSunAccent = '';
+    let cachedSunGradient: CanvasGradient | null = null;
+
+    const endWithGameOver = () => {
+      if (gameStateRef.current === GameState.GAMEOVER) return;
+      gameStateRef.current = GameState.GAMEOVER;
+      setGameState(GameState.GAMEOVER);
+      triggerGameOver();
+    };
+
+    const completeLevelRun = () => {
+      if (gameStateRef.current === GameState.VICTORY) return;
+      gameStateRef.current = GameState.VICTORY;
+      setGameState(GameState.VICTORY);
+    };
 
     const gameLoop = (timestamp: number) => {
       const rawDeltaMs = lastFrameTime === null ? TARGET_FRAME_MS : timestamp - lastFrameTime;
@@ -798,12 +819,14 @@ export default function SkyHopGame() {
           // Top or bottom borders collision check
           if (bird.y - bird.radius < 0) {
             // Ceil collision - trigger game over
-            setGameState(GameState.GAMEOVER);
-            triggerGameOver();
+            endWithGameOver();
+            requestRef.current = requestAnimationFrame(gameLoop);
+            return;
           } else if (bird.y + bird.radius > V_HEIGHT - 35) { // 35px ground buffer
             bird.y = V_HEIGHT - 35 - bird.radius;
-            setGameState(GameState.GAMEOVER);
-            triggerGameOver();
+            endWithGameOver();
+            requestRef.current = requestAnimationFrame(gameLoop);
+            return;
           }
 
           // Difficulty variables scaled harmoniously by score thresholds or levels
@@ -874,6 +897,8 @@ export default function SkyHopGame() {
             const maxHeight = V_HEIGHT - currentGap - 100;
             const topHeight = Math.floor(Math.random() * (maxHeight - minHeight)) + minHeight;
             const bottomHeight = V_HEIGHT - currentGap - topHeight - 35; // ground factor
+            const hasVerticalMotion = gameModeRef.current === 'campaign' && (activeLevel?.mechanic === 'moving' || activeLevel?.mechanic === 'wind');
+            const waveSpeed = activeLevel?.mechanic === 'wind' ? WIND_OBSTACLE_WAVE_SPEED : MOVING_OBSTACLE_WAVE_SPEED;
 
             // 70% probability of a coin spawning perfectly inside the gap of the obstacles
             const hasCoin = Math.random() < 0.70;
@@ -892,7 +917,8 @@ export default function SkyHopGame() {
               speed: currentSpeed,
               centerGap: currentGap,
               coin,
-              originalTopHeight: topHeight // Preserve original for moving oscillation math
+              originalTopHeight: topHeight, // Preserve original for moving oscillation math
+              wavePhase: hasVerticalMotion ? -tickerRef.current * waveSpeed : 0,
             });
           }
 
@@ -903,10 +929,20 @@ export default function SkyHopGame() {
 
             // Handle vertical moving gap oscillation if mechanic is moving or wind!
             if (gameModeRef.current === 'campaign' && activeLevel && (activeLevel.mechanic === 'moving' || activeLevel.mechanic === 'wind')) {
-              const origHeight = obs.originalTopHeight ?? obs.topHeight;
-              const speedMultiplier = activeLevel.mechanic === 'wind' ? 0.045 : 0.03;
-              const amplitude = activeLevel.mechanic === 'wind' ? 45 : 30;
-              const oscillation = Math.sin(tickerRef.current * speedMultiplier + i * 2.0) * amplitude;
+              if (obs.originalTopHeight === undefined) {
+                obs.originalTopHeight = obs.topHeight;
+              }
+
+              const origHeight = obs.originalTopHeight;
+              const speedMultiplier = activeLevel.mechanic === 'wind' ? WIND_OBSTACLE_WAVE_SPEED : MOVING_OBSTACLE_WAVE_SPEED;
+              const amplitude = activeLevel.mechanic === 'wind' ? WIND_OBSTACLE_AMPLITUDE : MOVING_OBSTACLE_AMPLITUDE;
+
+              if (obs.wavePhase === undefined) {
+                const currentOffset = Math.max(-amplitude, Math.min(amplitude, obs.topHeight - origHeight));
+                obs.wavePhase = Math.asin(currentOffset / amplitude) - tickerRef.current * speedMultiplier;
+              }
+
+              const oscillation = Math.sin(tickerRef.current * speedMultiplier + obs.wavePhase) * amplitude;
               
               obs.topHeight = Math.max(40, Math.min(V_HEIGHT - obs.centerGap - 80, origHeight + oscillation));
               obs.bottomHeight = V_HEIGHT - obs.centerGap - obs.topHeight - 35;
@@ -935,7 +971,7 @@ export default function SkyHopGame() {
 
               // Check if Level goal is complete!
               if (gameModeRef.current === 'campaign' && activeLevel && newScore >= activeLevel.targetScore) {
-                setGameState(GameState.VICTORY);
+                completeLevelRun();
                 
                 // Evaluate stars
                 const collectedInRun = levelCoinsCollectedRef.current;
@@ -962,6 +998,8 @@ export default function SkyHopGame() {
                     return prev;
                   });
                 }
+                requestRef.current = requestAnimationFrame(gameLoop);
+                return;
               }
             }
 
@@ -1050,8 +1088,9 @@ export default function SkyHopGame() {
                 });
               }
 
-              setGameState(GameState.GAMEOVER);
-              triggerGameOver();
+              endWithGameOver();
+              requestRef.current = requestAnimationFrame(gameLoop);
+              return;
             }
           }
         }
@@ -1086,20 +1125,27 @@ export default function SkyHopGame() {
         ? (activeLevel?.theme ?? 'day')
         : currentScore;
       const grads = getSkyGradients(levelTheme);
-      const skyGrad = ctx.createLinearGradient(0, 0, 0, V_HEIGHT);
-      skyGrad.addColorStop(0, grads.top);
-      skyGrad.addColorStop(1, grads.bottom);
-      ctx.fillStyle = skyGrad;
+      const skyKey = `${grads.top}:${grads.bottom}`;
+      if (cachedSkyKey !== skyKey || !cachedSkyGradient) {
+        cachedSkyGradient = ctx.createLinearGradient(0, 0, 0, V_HEIGHT);
+        cachedSkyGradient.addColorStop(0, grads.top);
+        cachedSkyGradient.addColorStop(1, grads.bottom);
+        cachedSkyKey = skyKey;
+      }
+      ctx.fillStyle = cachedSkyGradient;
       ctx.fillRect(0, 0, V_WIDTH, V_HEIGHT);
 
       // B. Sun / Celestial sphere accent
       ctx.beginPath();
       ctx.arc(V_WIDTH - 80, 80, 45, 0, Math.PI * 2);
-      const sunGrad = ctx.createRadialGradient(V_WIDTH - 80, 80, 5, V_WIDTH - 80, 80, 45);
-      sunGrad.addColorStop(0, 'rgba(255, 255, 255, 0.9)');
-      sunGrad.addColorStop(0.3, grads.accent + '66');
-      sunGrad.addColorStop(1, 'rgba(255, 255, 255, 0)');
-      ctx.fillStyle = sunGrad;
+      if (cachedSunAccent !== grads.accent || !cachedSunGradient) {
+        cachedSunGradient = ctx.createRadialGradient(V_WIDTH - 80, 80, 5, V_WIDTH - 80, 80, 45);
+        cachedSunGradient.addColorStop(0, 'rgba(255, 255, 255, 0.9)');
+        cachedSunGradient.addColorStop(0.3, grads.accent + '66');
+        cachedSunGradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
+        cachedSunAccent = grads.accent;
+      }
+      ctx.fillStyle = cachedSunGradient;
       ctx.fill();
 
       // C. Render Clouds
