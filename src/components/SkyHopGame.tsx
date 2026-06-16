@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+﻿import React, { useState, useEffect, useRef } from 'react';
 import { Play, Pause, RotateCcw, Trophy, Sparkles, Gamepad2, Award, Zap, Coins, Smartphone, Lock, Star, ArrowLeft, Volume2, VolumeX, HelpCircle } from 'lucide-react';
 import { GameState, Bird, Obstacle, Cloud, Particle, Level } from '../types';
 import { 
@@ -14,6 +14,20 @@ import {
 // Design Constants
 const V_WIDTH = 480;  // Virtual game width
 const V_HEIGHT = 640; // Virtual game height
+const TARGET_FRAME_MS = 1000 / 60;
+const MAX_DELTA_SCALE = 2;
+const WING_OFFSETS_Y = [3, 0, -3, 0];
+const PIPE_HIGHLIGHT = '#34d399';
+const PIPE_COLOR = '#10b981';
+const PIPE_SHADE = '#047857';
+
+interface SkyGradientInfo {
+  top: string;
+  bottom: string;
+  clouds: string;
+  accent: string;
+  label: string;
+}
 
 interface RankInfo {
   name: string;
@@ -26,14 +40,14 @@ interface RankInfo {
 // Custom rank calculation according to prompt requirements
 // 0 to 5 points: Iniciante
 // 6 to 15 points: Treinando
-// 16 to 30 points: Ágil
+// 16 to 30 points: Ãgil
 // 31 to 50 points: Mestre do Voo
-// 51+ points: Lenda dos Céus
+// 51+ points: Lenda dos CÃ©us
 export function getRank(score: number): RankInfo {
   if (score >= 51) {
     return {
-      name: 'Lenda dos Céus',
-      badge: '👑 Lenda dos Céus',
+      name: 'Lenda dos CÃ©us',
+      badge: 'ðŸ‘‘ Lenda dos CÃ©us',
       colorClass: 'text-indigo-400 bg-indigo-950/80 border-indigo-500/30',
       nextThreshold: null,
       prevThreshold: 51,
@@ -41,15 +55,15 @@ export function getRank(score: number): RankInfo {
   } else if (score >= 31) {
     return {
       name: 'Mestre do Voo',
-      badge: '⚡ Mestre do Voo',
+      badge: 'âš¡ Mestre do Voo',
       colorClass: 'text-amber-400 bg-amber-950/80 border-amber-500/30',
       nextThreshold: 51,
       prevThreshold: 31,
     };
   } else if (score >= 16) {
     return {
-      name: 'Ágil',
-      badge: '✨ Ágil',
+      name: 'Ãgil',
+      badge: 'âœ¨ Ãgil',
       colorClass: 'text-cyan-400 bg-cyan-950/80 border-cyan-500/30',
       nextThreshold: 31,
       prevThreshold: 16,
@@ -57,7 +71,7 @@ export function getRank(score: number): RankInfo {
   } else if (score >= 6) {
     return {
       name: 'Treinando',
-      badge: '🎯 Treinando',
+      badge: 'ðŸŽ¯ Treinando',
       colorClass: 'text-yellow-400 bg-yellow-950/80 border-yellow-500/30',
       nextThreshold: 16,
       prevThreshold: 6,
@@ -65,7 +79,7 @@ export function getRank(score: number): RankInfo {
   } else {
     return {
       name: 'Iniciante',
-      badge: '🌱 Iniciante',
+      badge: 'ðŸŒ± Iniciante',
       colorClass: 'text-emerald-400 bg-emerald-950/80 border-emerald-500/30',
       nextThreshold: 6,
       prevThreshold: 0,
@@ -78,7 +92,7 @@ export const LEVELS: Level[] = [
     id: 1,
     name: "Primeiro Voo",
     world: 1,
-    worldName: "Céu Claro",
+    worldName: "CÃ©u Claro",
     theme: "day",
     targetScore: 8,
     speed: 2.3,
@@ -93,7 +107,7 @@ export const LEVELS: Level[] = [
     id: 2,
     name: "Nuvens Calmas",
     world: 1,
-    worldName: "Céu Claro",
+    worldName: "CÃ©u Claro",
     theme: "day",
     targetScore: 10,
     speed: 2.5,
@@ -106,9 +120,9 @@ export const LEVELS: Level[] = [
   },
   {
     id: 3,
-    name: "Zênite Azul",
+    name: "ZÃªnite Azul",
     world: 1,
-    worldName: "Céu Claro",
+    worldName: "CÃ©u Claro",
     theme: "day",
     targetScore: 10,
     speed: 2.7,
@@ -123,7 +137,7 @@ export const LEVELS: Level[] = [
     id: 4,
     name: "Brisa de Outono",
     world: 2,
-    worldName: "Pôr do Sol",
+    worldName: "PÃ´r do Sol",
     theme: "sunset",
     targetScore: 12,
     speed: 3.0,
@@ -138,7 +152,7 @@ export const LEVELS: Level[] = [
     id: 5,
     name: "Horizonte Quente",
     world: 2,
-    worldName: "Pôr do Sol",
+    worldName: "PÃ´r do Sol",
     theme: "sunset",
     targetScore: 12,
     speed: 3.2,
@@ -151,9 +165,9 @@ export const LEVELS: Level[] = [
   },
   {
     id: 6,
-    name: "Último Suspiro",
+    name: "Ãšltimo Suspiro",
     world: 2,
-    worldName: "Pôr do Sol",
+    worldName: "PÃ´r do Sol",
     theme: "sunset",
     targetScore: 13,
     speed: 3.4,
@@ -166,7 +180,7 @@ export const LEVELS: Level[] = [
   },
   {
     id: 7,
-    name: "Silêncio Astral",
+    name: "SilÃªncio Astral",
     world: 3,
     worldName: "Noite Estrelada",
     theme: "night",
@@ -181,7 +195,7 @@ export const LEVELS: Level[] = [
   },
   {
     id: 8,
-    name: "Constelações",
+    name: "ConstelaÃ§Ãµes",
     world: 3,
     worldName: "Noite Estrelada",
     theme: "night",
@@ -211,7 +225,7 @@ export const LEVELS: Level[] = [
   },
   {
     id: 10,
-    name: "Brisa Elétrica",
+    name: "Brisa ElÃ©trica",
     world: 4,
     worldName: "Tempestade",
     theme: "storm",
@@ -226,7 +240,7 @@ export const LEVELS: Level[] = [
   },
   {
     id: 11,
-    name: "Trovão de Neon",
+    name: "TrovÃ£o de Neon",
     world: 4,
     worldName: "Tempestade",
     theme: "storm",
@@ -241,7 +255,7 @@ export const LEVELS: Level[] = [
   },
   {
     id: 12,
-    name: "Centro do Furacão",
+    name: "Centro do FuracÃ£o",
     world: 4,
     worldName: "Tempestade",
     theme: "storm",
@@ -256,6 +270,75 @@ export const LEVELS: Level[] = [
   }
 ];
 
+const LEVEL_BY_ID = new Map<number, Level>(LEVELS.map(level => [level.id, level]));
+
+const THEME_GRADIENTS: Record<Level['theme'], SkyGradientInfo> = {
+  day: {
+    top: '#38bdf8',
+    bottom: '#0ea5e9',
+    clouds: '#f1f5f9',
+    accent: '#bae6fd',
+    label: 'Amanhecer Celeste'
+  },
+  sunset: {
+    top: '#ff7e5f',
+    bottom: '#feb47b',
+    clouds: '#fef3c7',
+    accent: '#fde047',
+    label: 'CrepÃºsculo Dourado'
+  },
+  night: {
+    top: '#1e1b4b',
+    bottom: '#2e1065',
+    clouds: '#cbd5e1',
+    accent: '#818cf8',
+    label: 'Noite CÃ³smica'
+  },
+  storm: {
+    top: '#0f172a',
+    bottom: '#311042',
+    clouds: '#94a3b8',
+    accent: '#c084fc',
+    label: 'Tempestade ElÃ©trica'
+  }
+};
+
+const ENDLESS_AGILE_GRADIENT: SkyGradientInfo = {
+  top: '#4c1d95',
+  bottom: '#2563eb',
+  clouds: '#cbd5e1',
+  accent: '#e9d5ff',
+  label: 'Noite CÃ³smica'
+};
+
+const ENDLESS_MASTER_GRADIENT: SkyGradientInfo = {
+  top: '#311042',
+  bottom: '#7c107c',
+  clouds: '#e2e8f0',
+  accent: '#f5d0fe',
+  label: 'Sinfonia Violeta'
+};
+
+const ENDLESS_LEGEND_GRADIENT: SkyGradientInfo = {
+  top: '#0b0f19',
+  bottom: '#4f46e5',
+  clouds: '#94a3b8',
+  accent: '#a5b4fc',
+  label: 'Limiar do EspaÃ§o'
+};
+
+function getSkyGradients(scoreOrTheme: number | Level['theme']): SkyGradientInfo {
+  if (typeof scoreOrTheme === 'string') {
+    return THEME_GRADIENTS[scoreOrTheme];
+  }
+
+  if (scoreOrTheme < 6) return THEME_GRADIENTS.day;
+  if (scoreOrTheme < 16) return THEME_GRADIENTS.sunset;
+  if (scoreOrTheme < 31) return ENDLESS_AGILE_GRADIENT;
+  if (scoreOrTheme < 51) return ENDLESS_MASTER_GRADIENT;
+  return ENDLESS_LEGEND_GRADIENT;
+}
+
 export default function SkyHopGame() {
   const [gameState, setGameState] = useState<GameState>(GameState.START);
   const [score, setScore] = useState<number>(0);
@@ -263,7 +346,6 @@ export default function SkyHopGame() {
   const [coinsCount, setCoinsCount] = useState<number>(0);
   const [isOrientationBlocked, setIsOrientationBlocked] = useState(false);
   const [soundEnabled, setSoundEnabledState] = useState<boolean>(true);
-  const [isTouchDevice, setIsTouchDevice] = useState<boolean>(false);
   const [windowSize, setWindowSize] = useState<{ width: number; height: number }>({
     width: typeof window !== 'undefined' ? window.innerWidth : 480,
     height: typeof window !== 'undefined' ? window.innerHeight : 640,
@@ -310,7 +392,9 @@ export default function SkyHopGame() {
   const previousGameStateRef = useRef<GameState>(GameState.START);
 
   useEffect(() => {
-    const handleResize = () => {
+    let resizeFrame: number | null = null;
+
+    const updateLayout = () => {
       if (typeof window !== 'undefined') {
         const isLandscape = window.innerWidth > window.innerHeight;
         
@@ -350,16 +434,32 @@ export default function SkyHopGame() {
           isOrientationBlockedRef.current = false;
         }
 
-        setWindowSize({ width: window.innerWidth, height: window.innerHeight });
-        setIsTouchDevice(isTouch);
+        setWindowSize(prev => (
+          prev.width === window.innerWidth && prev.height === window.innerHeight
+            ? prev
+          : { width: window.innerWidth, height: window.innerHeight }
+        ));
       }
+    };
+
+    const handleResize = () => {
+      if (resizeFrame !== null) {
+        cancelAnimationFrame(resizeFrame);
+      }
+      resizeFrame = requestAnimationFrame(() => {
+        resizeFrame = null;
+        updateLayout();
+      });
     };
 
     window.addEventListener('resize', handleResize);
     window.addEventListener('orientationchange', handleResize);
-    handleResize();
+    updateLayout();
 
     return () => {
+      if (resizeFrame !== null) {
+        cancelAnimationFrame(resizeFrame);
+      }
       window.removeEventListener('resize', handleResize);
       window.removeEventListener('orientationchange', handleResize);
     };
@@ -407,7 +507,6 @@ export default function SkyHopGame() {
     // Score counters and coins are kept in memory for the current session, clean on entry
     setHighScore(0);
     setCoinsCount(0);
-    setIsTouchDevice('ontouchstart' in window || navigator.maxTouchPoints > 0);
 
     const savedUnlocked = localStorage.getItem('skyhop_campaign_unlocked');
     if (savedUnlocked) {
@@ -596,7 +695,7 @@ export default function SkyHopGame() {
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [isOrientationBlocked, unlockedLevels]);
+  }, [isOrientationBlocked]);
 
   const togglePause = () => {
     if (gameStateRef.current === GameState.PLAYING) {
@@ -626,88 +725,6 @@ export default function SkyHopGame() {
     setGameState(GameState.PLAYING);
   };
 
-  // Retrieve current Sky Gradient colors matching progress (Shift time of day based on score or direct direct theme name)
-  const getSkyGradients = (scoreOrTheme: number | string) => {
-    if (typeof scoreOrTheme === 'string') {
-      if (scoreOrTheme === 'day') {
-        return { 
-          top: '#38bdf8', // Sunset-Blue / Morning Sky (Mundo 1)
-          bottom: '#0ea5e9',
-          clouds: '#f1f5f9',
-          accent: '#bae6fd',
-          label: 'Amanhecer Celeste'
-        };
-      } else if (scoreOrTheme === 'sunset') {
-        return {
-          top: '#ff7e5f', // Golden Horizon (Mundo 2)
-          bottom: '#feb47b',
-          clouds: '#fef3c7',
-          accent: '#fde047',
-          label: 'Crepúsculo Dourado'
-        };
-      } else if (scoreOrTheme === 'night') {
-        return {
-          top: '#1e1b4b', // Deep Cosmic Evening (Mundo 3)
-          bottom: '#2e1065',
-          clouds: '#cbd5e1',
-          accent: '#818cf8',
-          label: 'Noite Cósmica'
-        };
-      } else { // 'storm'
-        return {
-          top: '#0f172a', // Cyber Neon Space / Storm purple (Mundo 4)
-          bottom: '#311042',
-          clouds: '#94a3b8',
-          accent: '#c084fc',
-          label: 'Tempestade Elétrica'
-        };
-      }
-    }
-
-    // Endless score-based fallbacks
-    const currentScore = scoreOrTheme;
-    if (currentScore < 6) {
-      return { 
-        top: '#38bdf8', // Sunset-Blue / Morning Sky (Iniciante)
-        bottom: '#0ea5e9',
-        clouds: '#f1f5f9',
-        accent: '#bae6fd',
-        label: 'Amanhecer Celeste'
-      };
-    } else if (currentScore < 16) {
-      return {
-        top: '#ff7e5f', // Golden Horizon (Treinando)
-        bottom: '#feb47b',
-        clouds: '#fef3c7',
-        accent: '#fde047',
-        label: 'Crepúsculo Dourado'
-      };
-    } else if (currentScore < 31) {
-      return {
-        top: '#4c1d95', // Deep Cosmic Evening (Ágil)
-        bottom: '#2563eb',
-        clouds: '#cbd5e1',
-        accent: '#e9d5ff',
-        label: 'Noite Cósmica'
-      };
-    } else if (currentScore < 51) {
-      return {
-        top: '#311042', // Violet nebula (Mestre)
-        bottom: '#7c107c',
-        clouds: '#e2e8f0',
-        accent: '#f5d0fe',
-        label: 'Sinfonia Violeta'
-      };
-    } else {
-      return {
-        top: '#0b0f19', // Cyber Neon Space (Lenda)
-        bottom: '#4f46e5',
-        clouds: '#94a3b8',
-        accent: '#a5b4fc',
-        label: 'Limiar do Espaço'
-      };
-    }
-  };
 
   // Engine loop using requestAnimationFrame
   useEffect(() => {
@@ -716,33 +733,43 @@ export default function SkyHopGame() {
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    const gameLoop = () => {
+    let lastFrameTime: number | null = null;
+
+    const gameLoop = (timestamp: number) => {
+      const rawDeltaMs = lastFrameTime === null ? TARGET_FRAME_MS : timestamp - lastFrameTime;
+      lastFrameTime = timestamp;
+      const deltaScale = Math.min(MAX_DELTA_SCALE, Math.max(0.25, rawDeltaMs / TARGET_FRAME_MS));
       const isBlocked = isOrientationBlockedRef.current;
       const particles = particlesRef.current;
       if (!isBlocked) {
-        tickerRef.current += 1;
+        tickerRef.current += deltaScale;
       }
       const state = gameStateRef.current;
       const currentScore = scoreRef.current;
+      const activeLevel = gameModeRef.current === 'campaign'
+        ? LEVEL_BY_ID.get(currentLevelIdRef.current)
+        : undefined;
 
       // 1. CHRONOS UPDATES (Physics & Movement)
       if (!isBlocked) {
         // Update Background Clouds (Even when paused or start screen to maintain aesthetic flow!)
-        cloudsRef.current.forEach(cloud => {
-          cloud.x -= cloud.speed;
+        const clouds = cloudsRef.current;
+        for (let i = 0; i < clouds.length; i++) {
+          const cloud = clouds[i];
+          cloud.x -= cloud.speed * deltaScale;
           if (cloud.x + cloud.size < 0) {
             cloud.x = V_WIDTH + Math.random() * 50;
             cloud.y = Math.random() * (V_HEIGHT * 0.4) + 20;
             cloud.size = Math.random() * 40 + 30;
             cloud.speed = Math.random() * 0.3 + 0.1;
           }
-        });
+        }
 
         if (state === GameState.START) {
           // Idle bobbing bird animation using Sine wave
           birdRef.current.y = V_HEIGHT / 2 + Math.sin(tickerRef.current * 0.08) * 15;
           birdRef.current.currentAngle = Math.sin(tickerRef.current * 0.05) * 0.15;
-          birdRef.current.wingTimer += 1;
+          birdRef.current.wingTimer += deltaScale;
           if (birdRef.current.wingTimer > 6) {
             birdRef.current.wingFrame = (birdRef.current.wingFrame + 1) % 4;
             birdRef.current.wingTimer = 0;
@@ -752,12 +779,12 @@ export default function SkyHopGame() {
         if (state === GameState.PLAYING) {
           // Apply Bird Gravity
           const bird = birdRef.current;
-          bird.vy += gravity;
+          bird.vy += gravity * deltaScale;
           if (bird.vy > maxFallSpeed) bird.vy = maxFallSpeed;
-          bird.y += bird.vy;
+          bird.y += bird.vy * deltaScale;
 
           // Wing flapping frequency increases in proportion to jump/gravity changes
-          bird.wingTimer += 1;
+          bird.wingTimer += deltaScale;
           const speedFactor = bird.vy < 0 ? 3 : 7; // Flap faster climbing up
           if (bird.wingTimer > speedFactor) {
             bird.wingFrame = (bird.wingFrame + 1) % 4;
@@ -766,7 +793,7 @@ export default function SkyHopGame() {
 
           // Adjust Tilt Angle smoothly based on vertical velocity
           bird.targetAngle = Math.min(Math.max(bird.vy * 0.08, -0.4), 0.7);
-          bird.currentAngle += (bird.targetAngle - bird.currentAngle) * 0.12;
+          bird.currentAngle += (bird.targetAngle - bird.currentAngle) * Math.min(1, 0.12 * deltaScale);
 
           // Top or bottom borders collision check
           if (bird.y - bird.radius < 0) {
@@ -780,7 +807,6 @@ export default function SkyHopGame() {
           }
 
           // Difficulty variables scaled harmoniously by score thresholds or levels
-          const activeLevel = LEVELS.find(l => l.id === currentLevelIdRef.current);
           let currentSpeed = 2.4;
           let currentGap = 150;
           let obstacleSpawnDistance = 220;
@@ -814,7 +840,7 @@ export default function SkyHopGame() {
           }
 
           // Wind draft trail generator for Sturm level
-          if (gameModeRef.current === 'campaign' && activeLevel?.mechanic === 'wind' && Math.random() < 0.12) {
+          if (gameModeRef.current === 'campaign' && activeLevel?.mechanic === 'wind' && Math.random() < 0.12 * deltaScale) {
             particlesRef.current.push({
               x: V_WIDTH + 10,
               y: Math.random() * V_HEIGHT,
@@ -873,7 +899,7 @@ export default function SkyHopGame() {
           // Move Obstacles and check collisions
           for (let i = obstacles.length - 1; i >= 0; i--) {
             const obs = obstacles[i];
-            obs.x -= obs.speed;
+            obs.x -= obs.speed * deltaScale;
 
             // Handle vertical moving gap oscillation if mechanic is moving or wind!
             if (gameModeRef.current === 'campaign' && activeLevel && (activeLevel.mechanic === 'moving' || activeLevel.mechanic === 'wind')) {
@@ -900,7 +926,8 @@ export default function SkyHopGame() {
             // Check passing (Increment score!)
             if (!obs.passed && obs.x + obs.width / 2 < 60) {
               obs.passed = true;
-              const newScore = currentScore + 1;
+              const newScore = scoreRef.current + 1;
+              scoreRef.current = newScore;
               setScore(newScore);
               
               // Spawn dynamic point sparkles
@@ -978,7 +1005,7 @@ export default function SkyHopGame() {
                   });
                 }
 
-                // Show quick +💰 coin popup
+                // Show quick +ðŸ’° coin popup
                 particlesRef.current.push({
                   x: coinX,
                   y: coinY - 15,
@@ -990,7 +1017,7 @@ export default function SkyHopGame() {
                   life: 0,
                   maxLife: 28,
                   type: 'score',
-                  text: '+💰'
+                  text: '+ðŸ’°'
                 });
               }
             }
@@ -1032,19 +1059,19 @@ export default function SkyHopGame() {
         // Update Particles life & move
         for (let i = particles.length - 1; i >= 0; i--) {
           const p = particles[i];
-          p.life += 1;
+          p.life += deltaScale;
           
           if (p.life >= p.maxLife) {
             particles.splice(i, 1);
             continue;
           }
 
-          p.x += p.vx;
-          p.y += p.vy;
+          p.x += p.vx * deltaScale;
+          p.y += p.vy * deltaScale;
           
           // Custom physics actions per particle type
           if (p.type === 'feather') {
-            p.vy += 0.05; // float downwards slightly
+            p.vy += 0.05 * deltaScale; // float downwards slightly
           }
           
           p.alpha = 1 - (p.life / p.maxLife);
@@ -1056,7 +1083,7 @@ export default function SkyHopGame() {
 
       // A. Sky Gradient Background
       const levelTheme = gameModeRef.current === 'campaign' 
-        ? (LEVELS.find(l => l.id === currentLevelIdRef.current)?.theme ?? 'day')
+        ? (activeLevel?.theme ?? 'day')
         : currentScore;
       const grads = getSkyGradients(levelTheme);
       const skyGrad = ctx.createLinearGradient(0, 0, 0, V_HEIGHT);
@@ -1076,33 +1103,32 @@ export default function SkyHopGame() {
       ctx.fill();
 
       // C. Render Clouds
-      cloudsRef.current.forEach(cloud => {
-        ctx.fillStyle = `rgba(255, 255, 255, ${cloud.opacity})`;
+      ctx.fillStyle = '#ffffff';
+      for (let i = 0; i < cloudsRef.current.length; i++) {
+        const cloud = cloudsRef.current[i];
+        ctx.globalAlpha = cloud.opacity;
         ctx.beginPath();
         ctx.arc(cloud.x, cloud.y, cloud.size, 0, Math.PI * 2);
         ctx.arc(cloud.x + cloud.size * 0.5, cloud.y - cloud.size * 0.25, cloud.size * 0.8, 0, Math.PI * 2);
         ctx.arc(cloud.x + cloud.size, cloud.y, cloud.size * 0.6, 0, Math.PI * 2);
         ctx.fill();
-      });
+      }
+      ctx.globalAlpha = 1;
 
       // D. Draw Obstacles (Pillars with styling and caps)
-      obstaclesRef.current.forEach(obs => {
-        // Colors
-        const pipeColor = '#10b981'; // Green emerald
-        const pipeHighlight = '#34d399';
-        const pipeShade = '#047857';
-
+      for (let i = 0; i < obstaclesRef.current.length; i++) {
+        const obs = obstaclesRef.current[i];
         // 1. Top Obstacle Rect
-        const topGrad = ctx.createLinearGradient(obs.x, 0, obs.x + obs.width, 0);
-        topGrad.addColorStop(0, pipeHighlight);
-        topGrad.addColorStop(0.25, pipeColor);
-        topGrad.addColorStop(0.8, pipeShade);
+        const pipeGrad = ctx.createLinearGradient(obs.x, 0, obs.x + obs.width, 0);
+        pipeGrad.addColorStop(0, PIPE_HIGHLIGHT);
+        pipeGrad.addColorStop(0.25, PIPE_COLOR);
+        pipeGrad.addColorStop(0.8, PIPE_SHADE);
         
-        ctx.fillStyle = topGrad;
+        ctx.fillStyle = pipeGrad;
         ctx.fillRect(obs.x, 0, obs.width, obs.topHeight - 14);
 
         // Rounded glowing header Cap for Top Pillar
-        ctx.fillStyle = topGrad;
+        ctx.fillStyle = pipeGrad;
         ctx.beginPath();
         ctx.roundRect(obs.x - 3, obs.topHeight - 14, obs.width + 6, 14, 4);
         ctx.fill();
@@ -1114,16 +1140,11 @@ export default function SkyHopGame() {
         const botY = V_HEIGHT - obs.bottomHeight - 35;
         const botHeightActual = obs.bottomHeight;
         
-        const botGrad = ctx.createLinearGradient(obs.x, 0, obs.x + obs.width, 0);
-        botGrad.addColorStop(0, pipeHighlight);
-        botGrad.addColorStop(0.25, pipeColor);
-        botGrad.addColorStop(0.8, pipeShade);
-        
-        ctx.fillStyle = botGrad;
+        ctx.fillStyle = pipeGrad;
         ctx.fillRect(obs.x, botY + 14, obs.width, botHeightActual - 14);
 
         // Header Cap for Bottom Pillar
-        ctx.fillStyle = botGrad;
+        ctx.fillStyle = pipeGrad;
         ctx.beginPath();
         ctx.roundRect(obs.x - 3, botY, obs.width + 6, 14, 4);
         ctx.fill();
@@ -1167,10 +1188,11 @@ export default function SkyHopGame() {
 
           ctx.restore();
         }
-      });
+      }
 
       // E. Draw General Particles
-      particles.forEach(p => {
+      for (let i = 0; i < particles.length; i++) {
+        const p = particles[i];
         ctx.save();
         ctx.globalAlpha = p.alpha;
         
@@ -1207,7 +1229,7 @@ export default function SkyHopGame() {
         }
         
         ctx.restore();
-      });
+      }
 
       // F. Draw Sky-Ground Floor & Top Limit Lines
       // Render ground parallax details
@@ -1250,8 +1272,7 @@ export default function SkyHopGame() {
 
       // 2. Large Animated Fluttering Wing
       // Wing size and angle cycles based on wing wings frame index to give natural feather flutter!
-      const wingOffsetsY = [3, 0, -3, 0];
-      const wingFrameOffsetY = wingOffsetsY[bird.wingFrame];
+      const wingFrameOffsetY = WING_OFFSETS_Y[bird.wingFrame];
       const wingGrad = ctx.createLinearGradient(-16, -4 + wingFrameOffsetY, 0, 4 + wingFrameOffsetY);
       wingGrad.addColorStop(0, '#fef08a');
       wingGrad.addColorStop(1, '#ea580c');
@@ -1326,10 +1347,12 @@ export default function SkyHopGame() {
   const isDesktop = windowSize.width >= 1024; // Alignment with standard desktop breakpoint (>= 1024px, e.g. lg)
   const isMobilePortrait = !isDesktop && windowSize.width <= 480 && windowSize.height > windowSize.width;
   const isTabletPortrait = !isDesktop && windowSize.width > 480 && windowSize.height > windowSize.width;
+  const isVeryShortPortrait = !isDesktop && windowSize.height <= 430 && windowSize.height > windowSize.width;
+  const isVeryShortLandscape = !isDesktop && windowSize.height <= 430 && windowSize.width > windowSize.height;
 
   // Let's compute safety height budget for mobile portrait dynamically to maintain responsiveness without scroll
-  const mobilePortraitPaddingTop = isMobilePortrait ? Math.max(20, Math.min(36, windowSize.height * 0.04)) : 0;
-  const mobilePortraitGap = isMobilePortrait ? Math.max(14, Math.min(26, windowSize.height * 0.03)) : 0;
+  const mobilePortraitPaddingTop = isMobilePortrait ? (isVeryShortPortrait ? 4 : Math.max(20, Math.min(36, windowSize.height * 0.04))) : 0;
+  const mobilePortraitGap = isMobilePortrait ? (isVeryShortPortrait ? 4 : Math.max(14, Math.min(26, windowSize.height * 0.03))) : 0;
 
   // Let's compute safety height budget for tablet portrait dynamically to maintain breathing room and prevent scroll
   const tabletPortraitPaddingTop = isTabletPortrait ? Math.max(24, Math.min(44, windowSize.height * 0.05)) : 0;
@@ -1338,7 +1361,7 @@ export default function SkyHopGame() {
   const titleHeightBudget = isDesktop 
     ? 0 
     : isMobilePortrait
-      ? (mobilePortraitPaddingTop + 32 + mobilePortraitGap)
+      ? (isVeryShortPortrait ? 0 : (mobilePortraitPaddingTop + 32 + mobilePortraitGap))
       : isTabletPortrait
         ? (tabletPortraitPaddingTop + 36 + tabletPortraitGap)
         : (windowSize.height < 520 ? 32 : (windowSize.height < 620 ? 44 : 56));
@@ -1346,7 +1369,7 @@ export default function SkyHopGame() {
   const containerHeightSafety = isDesktop 
     ? 36 
     : isMobilePortrait
-      ? 16
+      ? (isVeryShortPortrait ? 8 : 16)
       : isTabletPortrait
         ? 24
         : (windowSize.height < 520 ? 8 : 14); 
@@ -1359,6 +1382,7 @@ export default function SkyHopGame() {
   const computedMaxWidth = Math.max(260, Math.min(maxWidthCap, availableContentHeight * 0.75));
   const isCompact = computedMaxWidth < 340;
 
+  const activeLevelForUi = LEVEL_BY_ID.get(currentLevelId);
   const currentRankInfo = getRank(score);
 
   return (
@@ -1367,31 +1391,33 @@ export default function SkyHopGame() {
       {/* 4. OVERLAID BLOCKED SCREEN FOR LANDSCAPE TOUCH DEVICES */}
       {isOrientationBlocked && (
         <div className="fixed inset-0 z-50 bg-slate-950 flex flex-col justify-center items-center px-6 text-center select-none animate-fade-in text-white">
-          <div className="relative p-8 rounded-3xl bg-slate-900 border-2 border-yellow-500/30 shadow-[0_0_50px_rgba(234,179,8,0.15)] max-w-sm w-full mx-auto flex flex-col items-center gap-6">
+          <div className={`relative rounded-3xl bg-slate-900 border-2 border-yellow-500/30 shadow-[0_0_50px_rgba(234,179,8,0.15)] w-full mx-auto flex flex-col items-center ${
+            isVeryShortLandscape ? 'p-4 gap-3 max-w-xs' : 'p-8 gap-6 max-w-sm'
+          }`}>
             
             {/* Visual Rotating Smartphone Icon */}
-            <div className="relative w-20 h-20 flex items-center justify-center">
+            <div className={`relative flex items-center justify-center ${isVeryShortLandscape ? 'w-14 h-14' : 'w-20 h-20'}`}>
               <div className="absolute inset-0 rounded-full bg-yellow-500/10 animate-ping"></div>
               <div className="relative text-yellow-500 animate-[spin_4s_ease-in-out_infinite]">
-                <Smartphone size={46} className="transform rotate-0" />
+                <Smartphone size={isVeryShortLandscape ? 32 : 46} className="transform rotate-0" />
               </div>
             </div>
 
-            <div className="space-y-3">
-              <h2 className="text-2xl font-black tracking-tight flex items-center justify-center gap-2">
+            <div className={isVeryShortLandscape ? 'space-y-1.5' : 'space-y-3'}>
+              <h2 className={`${isVeryShortLandscape ? 'text-lg' : 'text-2xl'} font-black tracking-tight flex items-center justify-center gap-2`}>
                 <span>Gire seu dispositivo</span>
               </h2>
-              <p className="text-slate-200 text-xs sm:text-sm font-semibold max-w-[280px] leading-relaxed mx-auto">
-                Este jogo foi pensado para uma experiência mais fluida no modo vertical.
+              <p className={`text-slate-200 font-semibold max-w-[280px] leading-relaxed mx-auto ${isVeryShortLandscape ? 'text-[11px]' : 'text-xs sm:text-sm'}`}>
+                Este jogo foi pensado para uma experiÃªncia mais fluida no modo vertical.
               </p>
-              <p className="text-slate-400 text-[11px] font-medium max-w-[260px] leading-relaxed mx-auto">
-                Volte para a posição vertical para continuar jogando.
+              <p className={`text-slate-400 font-medium max-w-[260px] leading-relaxed mx-auto ${isVeryShortLandscape ? 'text-[10px]' : 'text-[11px]'}`}>
+                Volte para a posiÃ§Ã£o vertical para continuar jogando.
               </p>
             </div>
 
             {/* Aesthetic layout helper lines */}
-            <div className="w-full bg-slate-950/60 p-3.5 rounded-xl border border-white/5 text-[10px] text-teal-400 font-bold uppercase tracking-wider">
-              📱 Otimizado para telas verticais
+            <div className={`w-full bg-slate-950/60 rounded-xl border border-white/5 text-teal-400 font-bold uppercase tracking-wider ${isVeryShortLandscape ? 'p-2 text-[9px]' : 'p-3.5 text-[10px]'}`}>
+              ðŸ“± Otimizado para telas verticais
             </div>
           </div>
         </div>
@@ -1408,7 +1434,7 @@ export default function SkyHopGame() {
             </span>
           </h1>
           <p className="text-slate-650 text-sm font-semibold leading-relaxed mt-3 max-w-[290px]">
-             Voe alto pelos céus, desvie dos obstáculos e domine o ritmo do voo.
+             Voe alto pelos cÃ©us, desvie dos obstÃ¡culos e domine o ritmo do voo.
           </p>
         </div>
 
@@ -1420,16 +1446,16 @@ export default function SkyHopGame() {
           </h3>
           <ul className="space-y-2.5 text-slate-600 text-xs font-medium font-sans">
             <li className="flex items-start gap-1.5 leading-snug">
-              <span className="text-blue-500 font-bold mt-0.5">•</span>
-              <span>Pressione <strong className="text-slate-800 bg-slate-100 px-1.5 py-0.5 rounded font-mono text-[10px] border border-slate-200">Espaço</strong> ou clique para subir.</span>
+              <span className="text-blue-500 font-bold mt-0.5">â€¢</span>
+              <span>Pressione <strong className="text-slate-800 bg-slate-100 px-1.5 py-0.5 rounded font-mono text-[10px] border border-slate-200">EspaÃ§o</strong> ou clique para subir.</span>
             </li>
             <li className="flex items-start gap-1.5 leading-snug">
-              <span className="text-blue-500 font-bold mt-0.5">•</span>
+              <span className="text-blue-500 font-bold mt-0.5">â€¢</span>
               <span>Pressione <strong className="text-slate-800 bg-slate-100 px-1.5 py-0.5 rounded font-mono text-[10px] border border-slate-200">P</strong> para pausar o voo.</span>
             </li>
             <li className="flex items-start gap-1.5 leading-snug">
-              <span className="text-blue-500 font-bold mt-0.5">•</span>
-              <span>Desvie dos obstáculos e tente alcançar a melhor pontuação.</span>
+              <span className="text-blue-500 font-bold mt-0.5">â€¢</span>
+              <span>Desvie dos obstÃ¡culos e tente alcanÃ§ar a melhor pontuaÃ§Ã£o.</span>
             </li>
           </ul>
         </div>
@@ -1463,7 +1489,7 @@ export default function SkyHopGame() {
       >
         
         {/* Mobile/Tablet vertical title header - only below 'lg' wide layout */}
-        <div className={`lg:hidden text-center flex-shrink-0 select-none ${(isMobilePortrait || isTabletPortrait) ? 'mt-0 mb-0' : 'mt-0 mb-1'}`}>
+        <div className={`lg:hidden text-center flex-shrink-0 select-none ${isVeryShortPortrait ? 'hidden' : ''} ${(isMobilePortrait || isTabletPortrait) ? 'mt-0 mb-0' : 'mt-0 mb-1'}`}>
           <h1 className={`${isCompact ? 'text-[22px]' : 'text-3xl sm:text-4xl'} font-black tracking-tight flex items-center justify-center gap-2 drop-shadow-md text-slate-800`}>
             <span className="text-blue-500">Sky</span>
             <span className="text-yellow-500 relative flex items-center">
@@ -1653,11 +1679,11 @@ export default function SkyHopGame() {
                 }`}>
                   <span className="text-[9px] font-bold text-blue-400 uppercase tracking-wider">Fase Recomendada</span>
                   <p className={`${isMobilePortrait ? 'text-[12px]' : isTabletPortrait ? 'text-xs' : isCompact ? 'text-[11px]' : 'text-xs sm:text-sm'} font-black text-white mt-0.5`}>
-                    Fase {currentLevelId}: {LEVELS.find(l => l.id === currentLevelId)?.name}
+                    Fase {currentLevelId}: {activeLevelForUi?.name}
                   </p>
                   {(isMobilePortrait || isTabletPortrait || !isCompact) && (
                     <p className="text-[9px] text-slate-400 font-semibold mt-0.5">
-                      Meta: Sobreviver {LEVELS.find(l => l.id === currentLevelId)?.targetScore} vãos
+                      Meta: Sobreviver {activeLevelForUi?.targetScore} vÃ£os
                     </p>
                   )}
                 </div>
@@ -1745,7 +1771,7 @@ export default function SkyHopGame() {
                   }`}
                 >
                   <Play size={14} fill="currentColor" />
-                  <span>Começar Voo Infinito</span>
+                  <span>ComeÃ§ar Voo Infinito</span>
                 </button>
               )}
             </div>
@@ -1766,10 +1792,10 @@ export default function SkyHopGame() {
               <div className="text-center">
                 <h2 className="text-sm font-black text-teal-400 uppercase tracking-widest">Como Jogar</h2>
                 <p className="text-slate-200 text-xs font-semibold leading-relaxed mt-2.5 font-sans">
-                  Toque na tela para fazer o personagem voar. Desvie dos obstáculos, colete moedas e tente concluir cada fase.
+                  Toque na tela para fazer o personagem voar. Desvie dos obstÃ¡culos, colete moedas e tente concluir cada fase.
                 </p>
                 <div className="text-slate-400 text-[10px] font-medium leading-relaxed mt-2 border-t border-white/5 pt-2 font-sans">
-                  No computador, use <span className="text-white font-mono bg-slate-800 px-1 py-0.5 rounded">Espaço</span> ou clique para voar. Pressione <span className="text-white font-mono bg-slate-800 px-1 py-0.5 rounded">P</span> para pausar.
+                  No computador, use <span className="text-white font-mono bg-slate-800 px-1 py-0.5 rounded">EspaÃ§o</span> ou clique para voar. Pressione <span className="text-white font-mono bg-slate-800 px-1 py-0.5 rounded">P</span> para pausar.
                 </div>
               </div>
 
@@ -1807,7 +1833,7 @@ export default function SkyHopGame() {
 
               <div>
                 <h2 className={`${isCompact ? 'text-lg' : 'text-xl'} font-black text-rose-500 uppercase tracking-wide leading-none`}>Fim de Jogo</h2>
-                {!isCompact && <p className="text-slate-400 text-xs font-semibold mt-1">Ótimo percurso sob os céus!</p>}
+                {!isCompact && <p className="text-slate-400 text-xs font-semibold mt-1">Ã“timo percurso sob os cÃ©us!</p>}
               </div>
 
               {/* Patient Patent block */}
@@ -1871,7 +1897,7 @@ export default function SkyHopGame() {
                 
                 {!isCompact && (
                   <p className="text-[9px] sm:text-[10px] font-semibold text-slate-400">
-                    Ou pressione o <strong className="text-slate-300 font-mono">ENTER / ESPAÇO</strong> no teclado.
+                    Ou pressione o <strong className="text-slate-300 font-mono">ENTER / ESPAÃ‡O</strong> no teclado.
                   </p>
                 )}
               </div>
@@ -1958,8 +1984,8 @@ export default function SkyHopGame() {
             {/* Scrolling levels container */}
             <div className="w-full space-y-5 pb-6">
               {[1, 2, 3, 4].map((worldNum) => {
-                const worldName = worldNum === 1 ? 'Mundo 1: Céu Claro' :
-                                  worldNum === 2 ? 'Mundo 2: Pôr do Sol' :
+                const worldName = worldNum === 1 ? 'Mundo 1: CÃ©u Claro' :
+                                  worldNum === 2 ? 'Mundo 2: PÃ´r do Sol' :
                                   worldNum === 3 ? 'Mundo 3: Noite Estrelada' :
                                   'Mundo 4: Tempestade';
                 const worldBg = worldNum === 1 ? 'text-sky-300 bg-sky-950/35 border-sky-500/20' :
@@ -2006,7 +2032,7 @@ export default function SkyHopGame() {
                             </div>
 
                             <span className="text-[8px] font-black tracking-wider text-teal-400 uppercase">
-                              {lvl.targetScore} vãos
+                              {lvl.targetScore} vÃ£os
                             </span>
                           </button>
                         );
@@ -2060,21 +2086,21 @@ export default function SkyHopGame() {
               )}
 
               <div>
-                <h2 className={`${isCompact ? 'text-lg' : 'text-xl'} font-black text-emerald-400 uppercase tracking-wide leading-none`}>Fase Concluída!</h2>
-                {!isCompact && <p className="text-slate-400 text-xs font-semibold mt-1">Céu cruzado com maestria!</p>}
+                <h2 className={`${isCompact ? 'text-lg' : 'text-xl'} font-black text-emerald-400 uppercase tracking-wide leading-none`}>Fase ConcluÃ­da!</h2>
+                {!isCompact && <p className="text-slate-400 text-xs font-semibold mt-1">CÃ©u cruzado com maestria!</p>}
               </div>
 
               {/* Display level details */}
               <div className={`w-full rounded-xl border border-slate-700 bg-slate-950/80 text-center ${isCompact ? 'p-1.5' : 'p-2 sm:p-3'}`}>
-                <span className="text-[9px] font-bold uppercase text-slate-400 tracking-wider">Você venceu a</span>
-                <p className={`${isCompact ? 'text-xs' : 'text-md'} font-black text-white leading-tight`}>Fase {currentLevelId}: {LEVELS.find(l => l.id === currentLevelId)?.name}</p>
-                {!isCompact && <span className="text-[10px] font-bold text-slate-500">Mundo: {LEVELS.find(l => l.id === currentLevelId)?.worldName}</span>}
+                <span className="text-[9px] font-bold uppercase text-slate-400 tracking-wider">VocÃª venceu a</span>
+                <p className={`${isCompact ? 'text-xs' : 'text-md'} font-black text-white leading-tight`}>Fase {currentLevelId}: {activeLevelForUi?.name}</p>
+                {!isCompact && <span className="text-[10px] font-bold text-slate-500">Mundo: {activeLevelForUi?.worldName}</span>}
               </div>
 
               {/* Starlit Rating Block */}
               <div className={`flex justify-center bg-slate-950/40 rounded-xl border border-white/5 w-full ${isCompact ? 'gap-2.5 p-1.5' : 'gap-4 p-2.5'}`}>
                 {[1, 2, 3].map((starIdx) => {
-                  const activeLevelConf = LEVELS.find(l => l.id === currentLevelId);
+                  const activeLevelConf = activeLevelForUi;
                   if (!activeLevelConf) return null;
                   let isEarned = false;
                   
@@ -2100,7 +2126,7 @@ export default function SkyHopGame() {
               {/* Coins gathered during the run */}
               <div className={`w-full bg-yellow-950/30 border border-yellow-500/10 rounded-lg flex items-center justify-center gap-1.5 text-amber-300 font-mono font-bold ${isCompact ? 'py-0.5 text-[9.5px]' : 'py-1 text-xs'}`}>
                 <Coins size={isCompact ? 10 : 12} />
-                <span>Moedas Coletadas: {levelCoinsCollected} / {LEVELS.find(l => l.id === currentLevelId)?.star3Coins}</span>
+                <span>Moedas Coletadas: {levelCoinsCollected} / {activeLevelForUi?.star3Coins}</span>
               </div>
 
               {/* Action buttons */}
@@ -2117,13 +2143,13 @@ export default function SkyHopGame() {
                       isCompact ? 'py-2 text-xs' : 'py-3 px-5 text-sm'
                     }`}
                   >
-                    <span>Próxima Fase ({currentLevelId + 1})</span>
+                    <span>PrÃ³xima Fase ({currentLevelId + 1})</span>
                     <Play size={13} fill="currentColor" />
                   </button>
                 ) : (
                   <div className="w-full p-2 bg-yellow-950/20 text-yellow-500 border border-yellow-500/20 rounded-xl text-[10px] font-black uppercase tracking-wider flex items-center justify-center gap-1">
                     <Trophy size={11} className="text-yellow-400 animate-pulse" />
-                    <span>Todas as fases concluídas!</span>
+                    <span>Todas as fases concluÃ­das!</span>
                   </div>
                 )}
 
