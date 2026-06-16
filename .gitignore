@@ -23,10 +23,6 @@ pnpm-debug.log*
 # Cache do Vite
 .vite/
 
-# Arquivos/pastas do AI Studio que não serão usados
-assets/.aistudio/
-.aistudio/
-
 # Sistema operacional
 .DS_Store
 Thumbs.db
